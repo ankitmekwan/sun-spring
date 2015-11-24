@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Properties>
+		<Property name="log-path">/sun/logs/</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console-log" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
+		</Console>
+		<RollingFile name="trace-log" fileName="${log-path}/Sun-Trace.log"
+			filePattern="${log-path}/${date:yyyy-MM}/Sun-Trace-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout>
+				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+				</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+		</RollingFile>
+		<RollingFile name="error-log" fileName="${log-path}/Sun-Error.log"
+			filePattern="${log-path}/${date:yyyy-MM}/Sun-Error-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout>
+				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+				</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<logger name="com.computers.sun" level="debug" additivity="false">
+			<appender-ref ref="trace-log" level="debug" />
+			<appender-ref ref="error-log" level="error" />
+			<appender-ref ref="console-log" level="debug" />
+		</logger>
+		<Root level="info" additivity="false">
+			<appender-ref ref="console-log" />
+		</Root>
+	</Loggers>
+
+</Configuration>

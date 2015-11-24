@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:datasource.properties" />
+	</bean>
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="poolName" value="springHikariCP" />
+		<property name="maximumPoolSize" value="20" />
+		<property name="dataSourceClassName"
+			value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="url">${datasource.url}</prop>
+				<prop key="user">${datasource.username}</prop>
+				<prop key="password">${datasource.password}</prop>
+				<prop key="cachePrepStmts">true</prop>
+				<prop key="prepStmtCacheSize">500</prop>
+				<prop key="prepStmtCacheSqlLimit">2048</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.computers.sun.command.Address</value>
+				<value>com.computers.sun.command.City</value>
+				<value>com.computers.sun.command.Company</value>
+				<value>com.computers.sun.command.Country</value>
+				<value>com.computers.sun.command.FailedLoginLog</value>
+				<value>com.computers.sun.command.RequestUrlInfo</value>
+				<value>com.computers.sun.command.State</value>
+				<value>com.computers.sun.command.User</value>
+				<value>com.computers.sun.command.UserPhoto</value>
+				<value>com.computers.sun.command.UserStatus</value>
+				<value>com.computers.sun.command.UserType</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="txProxyTemplate" abstract="true"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="persistenceFacade" class="com.computers.sun.persistence.PersistenceFacadeImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="facadeLookup" class="com.computers.sun.service.FacadeLookup">
+		<property name="persistenceFacade" ref="persistenceFacade" />
+	</bean>
+
+</beans>

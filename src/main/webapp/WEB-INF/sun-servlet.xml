@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="com.computers.sun.controller" />
+	<context:component-scan base-package="com.computers.sun.security" />
+	
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="classpath:messages" />
+	</bean>
+
+	<bean id="localeChangeInterceptor"
+		class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+		<property name="paramName" value="lang" />
+	</bean>
+
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+		<property name="defaultLocale" value="en" />
+	</bean>
+
+	<bean id="handlerMapping"
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="interceptors">
+			<ref bean="localeChangeInterceptor" />
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="465" />
+		<property name="protocol" value="smtps" />
+		<property name="username" value="tickets@dnaticket.com" />
+		<property name="password" value="j35u515l0v3" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtps.starttls.enable">true</prop>
+				<prop key="mail.smtps.auth">true</prop>
+				<prop key="mail.smtps.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="ipRequestInfoService" parent="txProxyTemplate">
+		<property name="proxyInterfaces">
+			<value>
+				com.computers.sun.service.IpRequestInfoService
+			</value>
+		</property>
+		<property name="target">
+			<bean id="IpRequestInfoServiceTarget"
+				class="com.computers.sun.service.serviceImpl.IpRequestInfoServiceImpl"
+				lazy-init="true">
+				<property name="facadeLookup" ref="facadeLookup" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="userAccountService" parent="txProxyTemplate">
+		<property name="proxyInterfaces">
+			<value>
+				com.computers.sun.service.UserAccountService
+			</value>
+		</property>
+		<property name="target">
+			<bean id="UserAccountServiceTarget"
+				class="com.computers.sun.service.serviceImpl.UserAccountServiceImpl"
+				lazy-init="true">
+				<property name="facadeLookup" ref="facadeLookup" />
+				<property name="mailSender" ref="mailSender" />
+			</bean>
+		</property>
+	</bean>
+
+</beans>
